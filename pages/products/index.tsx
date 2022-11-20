@@ -59,7 +59,7 @@ function Products() {
       let { data } = await api.get(url);
 
       setProducts(data.data);
-      setPageSize(data.totalData);
+      setPageSize(data.pageLimit);
       setPageCount(data.pages);
       setCurrentPage(data.currentPage);
       setCanPreviousPage(data.canPreviousPage);
@@ -108,7 +108,7 @@ function Products() {
 
   const onClickNextPage = async () => {
     try {
-      let targetPage = currentPage - 1;
+      let targetPage = currentPage + 1;
       await fetchData(targetPage);
       router.push(`/products${buildQueryParam(targetPage)}`, undefined, {
         shallow: true,
@@ -173,12 +173,10 @@ function Products() {
     const page = urlSearchParams.get("page");
     const query = urlSearchParams.get("query");
 
-    if (products.length === 0) {
-      if (query) {
-        setSearchTerm(query);
-      }
-      fetchData(Number(page), query as string);
+    if (query) {
+      setSearchTerm(query);
     }
+    fetchData(Number(page), query as string);
 
     return () => {
       debouncedResults.cancel();
@@ -383,7 +381,7 @@ function Products() {
           >
             Showing {currentPage === 1 ? 1 : (currentPage - 1) * pageSize + 1}{" "}
             to{" "}
-            {pageSize * currentPage <= totalData
+            {pageSize * currentPage < totalData
               ? pageSize * currentPage
               : pageSize * (currentPage - 1) + products.length}{" "}
             of {totalData} entries
